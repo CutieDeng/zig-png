@@ -32,7 +32,7 @@ pub const Chunk = struct {
 
     pub fn verify(cu: Chunk, actual_crc: *u32) !void {
         var v = std.hash.Crc32.init(); 
-        v.update(std.mem.asBytes(&cu.chunk_type)); 
+        v.update(std.mem.asBytes(&@byteSwap(cu.chunk_type))); 
         v.update(std.mem.sliceAsBytes(cu.chunk_data)); 
         const c = v.final(); 
         if (c != cu.crc) {
@@ -54,7 +54,7 @@ pub const Chunk = struct {
     }
 
     pub fn dbg(cu: Chunk, writer: anytype) !void {
-        const t : [4]u8 = @bitCast(cu.chunk_type); 
+        const t : [4]u8 = @bitCast(@byteSwap(cu.chunk_type)); 
         var _unused: u32 = undefined; 
         try writer.print("Chunk(type:{s},len:{},", .{ t, cu.length }); 
         try writer.print("verified:#", .{}); 
@@ -76,7 +76,6 @@ pub const Chunk = struct {
         try writer.print(")", .{}); 
         return ; 
     }
-
 }; 
 
 pub const fileSignature: [8]u8 = [_] u8 { 137, 80, 78, 71, 13, 10, 26, 10 }; 
